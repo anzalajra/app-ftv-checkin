@@ -32,11 +32,11 @@ $Action = New-ScheduledTaskAction -Execute $PythonPath -Argument "`"$PythonScrip
 # Create trigger for startup (runs at logon)
 $Trigger = New-ScheduledTaskTrigger -AtLogon
 
-# Create principal to run with highest privileges
-$Principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Highest
+# Create principal to run with standard user privileges
+$Principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive
 
 # Create settings
-$Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 0)
+$Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 24)
 
 # Register the scheduled task
 Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Principal $Principal -Settings $Settings -Description "Film dan Televisi User Check-In Application - Starts immediately at logon"

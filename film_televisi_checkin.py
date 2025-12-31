@@ -170,6 +170,9 @@ class PipWindow(QWidget):
     def update_timer(self):
         # Calculate elapsed seconds correctly
         elapsed = self.start_time.secsTo(QTime.currentTime())
+        # Ensure elapsed time is non-negative (handles system time changes)
+        if elapsed < 0:
+            elapsed = 0
         elapsed_text = QTime(0, 0).addSecs(elapsed).toString("hh:mm:ss")
         self.timer_label.setText(f"Durasi Aktif: {elapsed_text}")
 
