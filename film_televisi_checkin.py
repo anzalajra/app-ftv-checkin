@@ -136,7 +136,7 @@ class CheckInSystem(QWidget):
         self.setWindowTitle("Timer Aktif")
         self.setGeometry(100, 100, 300, 200)
         # Disable close button and make it always on top
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint)
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.Tool)
     
         # Layout
         layout = QVBoxLayout()
@@ -186,7 +186,10 @@ class CheckInSystem(QWidget):
         self.timer.start(1000)  # Update every 1 second
 
         self.show()  # Show timer page
-
+    def closeEvent(self, event):
+        """Override the close event to prevent the window from being closed."""
+        event.ignore()  # Ignore the close event, so the window won't close
+    
     def mousePressEvent(self, event):
         """Initialize dragging when the mouse is pressed."""
         if event.button() == Qt.LeftButton:  # Only left-click is used for dragging
