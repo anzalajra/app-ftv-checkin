@@ -29,6 +29,8 @@ class CheckInSystem(QWidget):
 
         # Main Layout for Check-In
         layout_main = QVBoxLayout()
+        layout_main.setContentsMargins(50, 50, 50, 50)  # Tambahkan margin di setiap sisi
+        layout_main.setSpacing(20)  # Spasi antar elemen
 
         # Title Label
         self.label_title = QLabel("Selamat Datang! Silakan Check-In")
@@ -48,7 +50,7 @@ class CheckInSystem(QWidget):
             border: 2px solid #CCCCCC;
             border-radius: 10px;  /* Rounded Corner */
         """)
-        self.name_input.setFont(QFont("Arial", 14))
+        self.name_input.setFont(QFont("Segoe UI Variable", 14))
         self.name_input.setAlignment(Qt.AlignCenter)
 
         self.nim_input = QLineEdit(self)
@@ -60,7 +62,7 @@ class CheckInSystem(QWidget):
             border: 2px solid #CCCCCC;
             border-radius: 10px;
         """)
-        self.nim_input.setFont(QFont("Arial", 14))
+        self.nim_input.setFont(QFont("Segoe UI Variable", 14))
         self.nim_input.setAlignment(Qt.AlignCenter)
 
         submit_button = QPushButton("Check-In", self)
@@ -139,17 +141,38 @@ class CheckInSystem(QWidget):
 
         # Display the user's name
         name_label = QLabel(f"Selamat datang, {self.user_name}!")
-        name_label.setFont(QFont("Arial", 16))
+        name_label.setFont(QFont("Segoe UI Variable", 20))  # Besarkan ukuran font
+        name_label.setStyleSheet("color: #5A5A5A; font-weight: bold;")  # Warna teks bukan hitam pekat
         name_label.setAlignment(Qt.AlignCenter)
 
         # Timer display
         self.timer_label = QLabel("00:00:00")
-        self.timer_label.setFont(QFont("Arial", 24))  # Bigger font for the timer
+        self.timer_label.setFont(QFont("Segoe UI Variable", 28))  # Ukuran lebih besar untuk fokus
+        self.timer_label.setStyleSheet("""
+            background-color: #FFFFFF;  /* Latar belakang putih sederhana */
+            border: 2px solid #CCCCCC;
+            border-radius: 10px;
+            padding: 6px;
+            color: #0078D4;  /* Warna utama biru */
+        """)
         self.timer_label.setAlignment(Qt.AlignCenter)
 
         # Logout Button
         self.logout_button = QPushButton("Logout", self)
-        self.logout_button.setFont(QFont("Arial", 12))
+        logout_button.setFont(QFont("Segoe UI Variable", 14))
+        logout_button.setStyleSheet("""
+            QPushButton {
+                background-color: #0078D4;  /* Tombol biru logout */
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 8px;
+                padding: 6px 16px;
+            }
+            QPushButton:hover {
+                background-color: #005A9E;
+            }
+        """)
         self.logout_button.clicked.connect(self.logout_handler)
 
         # Add widgets to the layout
