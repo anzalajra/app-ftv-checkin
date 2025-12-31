@@ -32,7 +32,8 @@ class CheckInSystem(QWidget):
 
         # Title Label
         self.label_title = QLabel("Selamat Datang! Silakan Check-In")
-        self.label_title.setFont(QFont("Arial", 18))
+        self.label_title.setFont(QFont("Segoe UI Variable", 24))
+        self.label_title.setStyleSheet("color: #000000; font-weight: bold;")  # Warna teks dan ketebalan
         self.label_title.setAlignment(Qt.AlignCenter)
         layout_main.addWidget(self.label_title)
 
@@ -40,15 +41,42 @@ class CheckInSystem(QWidget):
         form_layout = QVBoxLayout()
         self.name_input = QLineEdit(self)
         self.name_input.setPlaceholderText("Nama")
+        self.name_input.setStyleSheet("""
+            background-color: #FFFFFF;  /* Warna putih */
+            font-size: 16px;
+            padding: 8px;
+            border: 2px solid #CCCCCC;
+            border-radius: 10px;  /* Rounded Corner */
+        """)
         self.name_input.setFont(QFont("Arial", 14))
         self.name_input.setAlignment(Qt.AlignCenter)
 
         self.nim_input = QLineEdit(self)
         self.nim_input.setPlaceholderText("NIM")
+        self.nim_input.setStyleSheet("""
+            background-color: #FFFFFF;
+            font-size: 16px;
+            padding: 8px;
+            border: 2px solid #CCCCCC;
+            border-radius: 10px;
+        """)
         self.nim_input.setFont(QFont("Arial", 14))
         self.nim_input.setAlignment(Qt.AlignCenter)
 
         submit_button = QPushButton("Check-In", self)
+        submit_button.setStyleSheet("""
+            QPushButton {
+                background-color: #0078D4;  /* Biru ala Windows */
+                color: white;
+                font-size: 16px;
+                font-weight: bold;
+                border-radius: 12px;
+                padding: 8px 16px;
+            }
+            QPushButton:hover {
+                background-color: #005A9E;  /* Biru lebih gelap saat hover */
+            }
+        """)
         submit_button.setFont(QFont("Arial", 14))
         submit_button.clicked.connect(self.handle_checkin)
 
@@ -62,7 +90,19 @@ class CheckInSystem(QWidget):
         button_layout = QHBoxLayout()
         shutdown_button = QPushButton("Shutdown")
         shutdown_button.setFont(QFont("Arial", 10))
-        shutdown_button.setStyleSheet("background-color: #cc0000; color: white; padding: 5px;")
+        shutdown_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FF0000;  /* Tombol shutdown warna merah */
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 8px;
+                padding: 6px 12px;
+            }
+            QPushButton:hover {
+                background-color: #B20000;  /* Warna merah lebih gelap saat hover */
+            }
+        """)
         shutdown_button.clicked.connect(self.shutdown_handler)
 
         button_layout.addStretch()
