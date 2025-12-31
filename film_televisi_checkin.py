@@ -136,7 +136,7 @@ class CheckInSystem(QWidget):
         self.setWindowTitle("Timer Aktif")
         self.setGeometry(100, 100, 300, 200)
         # Disable close button and make it always on top
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Window | Qt.CustomizeWindowHint)
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint)
     
         # Layout
         layout = QVBoxLayout()
