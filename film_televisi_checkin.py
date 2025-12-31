@@ -9,6 +9,7 @@ class CheckInSystem(QWidget):
         super().__init__()
         self.start_time = None  # Timer start time
         self.timer = None       # QTimer instance
+        self.user_name = None   # Name of the user who checked in
         self.init_checkin_ui()  # Set up fullscreen check-in page first
 
     def init_checkin_ui(self):
@@ -18,6 +19,7 @@ class CheckInSystem(QWidget):
         self.setWindowFlags(Qt.FramelessWindowHint)  # Remove window border
         self.showFullScreen()  # Set Fullscreen for check-in page
 
+        # Main Layout for Check-In
         layout_main = QVBoxLayout()
 
         # Title Label
@@ -48,24 +50,7 @@ class CheckInSystem(QWidget):
 
         layout_main.addLayout(form_layout)
 
-        # Shutdown and Sleep Buttons at Bottom Right
-        button_layout = QHBoxLayout()
-        shutdown_button = QPushButton("Shutdown")
-        shutdown_button.setFont(QFont("Arial", 10))
-        shutdown_button.setStyleSheet("background-color: #cc0000; color: white; padding: 5px;")
-        shutdown_button.clicked.connect(self.shutdown_handler)
-
-        sleep_button = QPushButton("Sleep")
-        sleep_button.setFont(QFont("Arial", 10))
-        sleep_button.setStyleSheet("background-color: #008080; color: white; padding: 5px;")
-        sleep_button.clicked.connect(self.sleep_handler)
-
-        button_layout.addStretch()
-        button_layout.addWidget(shutdown_button)
-        button_layout.addWidget(sleep_button)
-
-        layout_main.addLayout(button_layout)
-
+        # Set the layout
         self.setLayout(layout_main)
 
     def handle_checkin(self):
@@ -78,7 +63,8 @@ class CheckInSystem(QWidget):
             self.label_title.setStyleSheet("color: red;")
             return
 
-        # Check-in successful, proceed to timer window
+        # Store the user's name and proceed to timer
+        self.user_name = name
         self.label_title.setStyleSheet("color: black;")
         self.label_title.setText("Check-In berhasil, memulai aplikasi...")
         self.close()  # Close fullscreen check-in page
@@ -92,14 +78,23 @@ class CheckInSystem(QWidget):
 
         layout = QVBoxLayout()
 
-        self.timer_label = QLabel("Durasi Aktif: 00:00:00")
-        self.timer_label.setFont(QFont("Arial", 16))
+        # Display the user's name
+        name_label = QLabel(f"Selamat datang, {self.user_name}!")
+        name_label.setFont(QFont("Arial", 16))
+        name_label.setAlignment(Qt.AlignCenter)
+
+        # Timer display
+        self.timer_label = QLabel("00:00:00")
+        self.timer_label.setFont(QFont("Arial", 24))  # Bigger font for the timer
         self.timer_label.setAlignment(Qt.AlignCenter)
 
+        # Logout Button
         self.logout_button = QPushButton("Logout", self)
         self.logout_button.setFont(QFont("Arial", 12))
         self.logout_button.clicked.connect(self.logout_handler)
 
+        # Add widgets to the layout
+        layout.addWidget(name_label)
         layout.addWidget(self.timer_label)
         layout.addWidget(self.logout_button, alignment=Qt.AlignHCenter)
         self.setLayout(layout)
@@ -115,22 +110,16 @@ class CheckInSystem(QWidget):
     def update_timer(self):
         """Update the timer label."""
         elapsed = self.start_time.secsTo(QTime.currentTime())
-        elapsed_text = QTime(0, 0).addSecs(elapsed).toString("hh:mm:ss")
-        self.timer_label.setText(f"Durasi Aktif: {elapsed_text}")
+        elapsed_text = QTime(0, 0).addSecs(elapsed).toString("HH:mm:ss")
+        self.timer_label.setText(elapsed_text)
 
     def logout_handler(self):
         """Handle logout button."""
         self.timer.stop()  # Stop the timer
         self.close()  # Close the timer page
+        self.start_time = None  # Reset timer
+        self.user_name = None  # Reset user name
         self.init_checkin_ui()  # Reopen the fullscreen check-in page
-
-    def shutdown_handler(self):
-        """Simulate shutdown."""
-        print("Shutdown button clicked")  # Replace with actual shutdown logic if necessary
-
-    def sleep_handler(self):
-        """Simulate sleep."""
-        print("Sleep button clicked")  # Replace with actual sleep logic if necessary
 
 
 if __name__ == "__main__":
