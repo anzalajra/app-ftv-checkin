@@ -24,7 +24,7 @@ class CheckInSystem(QWidget):
         self.clear_layout()  # Clear the current layout first
         self.setWindowTitle("Film dan Televisi Check-In")
         self.setGeometry(200, 200, 300, 200)
-        self.setWindowFlags(Qt.FramelessWindowHint)  # Remove window border
+        self.setWindowFlags(Qt.Widget | Qt.FramelessWindowHint)
         self.showFullScreen()  # Set Fullscreen for check-in page
 
         # Main Layout for Check-In
@@ -113,6 +113,7 @@ class CheckInSystem(QWidget):
 
         # Set the layout
         self.setLayout(layout_main)
+        self.show()  # Pastikan ini dipanggil
 
     def handle_checkin(self):
         """Handle the check-in process."""
@@ -136,7 +137,7 @@ class CheckInSystem(QWidget):
         self.setWindowTitle("Timer Aktif")
         self.setGeometry(100, 100, 300, 200)
         # Disable close button and make it always on top
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.Tool)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.CustomizeWindowHint)
     
         # Layout
         layout = QVBoxLayout()
@@ -194,8 +195,6 @@ class CheckInSystem(QWidget):
         layout.addWidget(self.user_label, alignment=Qt.AlignCenter)
         layout.addWidget(self.timer_label, alignment=Qt.AlignCenter)
         layout.addWidget(self.logout_button, alignment=Qt.AlignCenter)
-        self.setLayout(layout)
-        self.show()
     
         # Initialize drag variables
         self._is_dragging = False  # To track dragging status
@@ -206,7 +205,8 @@ class CheckInSystem(QWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
         self.timer.start(1000)  # Update every 1 second
-
+        
+        self.setLayout(layout)
         self.show()  # Show timer page
         
 
