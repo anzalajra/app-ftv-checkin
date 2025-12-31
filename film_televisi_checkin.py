@@ -211,22 +211,22 @@ class CheckInSystem(QWidget):
         
 
     def keyPressEvent(self, event):
-    """Detect specific key combinations for Admin functionalities."""
-    # Jika Ctrl + A ditekan, tampilkan Admin Close button
-    if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_A:
-        self.admin_close_button.show()  # Tampilkan tombol
-    # Jika Esc ditekan, sembunyikan Admin Close button
-    elif event.key() == Qt.Key_Escape:
-        self.admin_close_button.hide()  # Sembunyikan tombol
+        """Detect specific key combinations for Admin functionalities."""
+        # Jika Ctrl + A ditekan, tampilkan Admin Close button
+        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_A:
+            self.admin_close_button.show()  # Tampilkan tombol
+        # Jika Esc ditekan, sembunyikan Admin Close button
+        elif event.key() == Qt.Key_Escape:
+            self.admin_close_button.hide()  # Sembunyikan tombol
 
 
     def admin_close_dialog(self):
-    """Display a dialog for Admin PIN verification before closing the app."""
-    pin, ok = QInputDialog.getText(self, "Admin Authentication", "Masukkan PIN Admin:", QLineEdit.Password)
-    if ok and pin == "9999":  # Replace "1234" dengan PIN aman
-        QApplication.quit()  # Menutup aplikasi jika PIN benar
-    elif ok:
-        print("PIN Salah!")  # Feedback jika PIN salah
+        """Display a dialog for Admin PIN verification before closing the app."""
+        pin, ok = QInputDialog.getText(self, "Admin Authentication", "Masukkan PIN Admin:", QLineEdit.Password)
+        if ok and pin == "9999":  # Replace "1234" dengan PIN aman
+            QApplication.quit()  # Menutup aplikasi jika PIN benar
+        elif ok:
+            print("PIN Salah!")  # Feedback jika PIN salah
 
     
     def closeEvent(self, event):
