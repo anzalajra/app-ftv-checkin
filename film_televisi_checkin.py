@@ -14,8 +14,8 @@ class CheckInSystem(QWidget):
     def initUI(self):
         # Window properties
         self.setWindowTitle("Film dan Televisi User Check-In")
-        self.setGeometry(600, 200, 400, 400)
-        self.setWindowFlags(Qt.FramelessWindowHint)
+        # Set to fullscreen and always on top to prevent access to other apps
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setStyleSheet("""
             background-color: #f0f0f0;
             border-radius: 20px;
@@ -101,7 +101,7 @@ class CheckInSystem(QWidget):
 
         self.hide()
         self.monitor_window = PipWindow(name)
-        self.monitor_window.show()
+        self.monitor_window.showFullScreen()  # Show in fullscreen mode
 
     def shutdown_handler(self):
         sys.exit()  # Simulate shutdown for now
@@ -126,7 +126,8 @@ class PipWindow(QWidget):
 
     def initUI(self):
         self.setWindowTitle(f"Monitoring: {self.user_name}")
-        self.setGeometry(700, 400, 300, 200)
+        # Set to fullscreen and always on top to prevent access to other apps
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setStyleSheet("background-color: #f8f8f8; border-radius: 15px;")
 
         layout = QVBoxLayout()
@@ -167,18 +168,19 @@ class PipWindow(QWidget):
         self.setLayout(layout)
 
     def update_timer(self):
-        elapsed = QTime(0, 0).secsTo(self.start_time.secsTo(QTime.currentTime()))
+        # Calculate elapsed seconds correctly
+        elapsed = self.start_time.secsTo(QTime.currentTime())
         elapsed_text = QTime(0, 0).addSecs(elapsed).toString("hh:mm:ss")
         self.timer_label.setText(f"Durasi Aktif: {elapsed_text}")
 
     def logout_handler(self):
         self.close()
         self.checkin_window = CheckInSystem()
-        self.checkin_window.show()
+        self.checkin_window.showFullScreen()  # Show in fullscreen mode
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = CheckInSystem()
-    window.show()
+    window.showFullScreen()  # Show in fullscreen mode
     sys.exit(app.exec_())

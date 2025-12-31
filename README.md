@@ -42,25 +42,52 @@
      python film_televisi_checkin.py
      ```
 
-5. **Auto-Run Saat Startup (Opsional)**
-   - Otomatiskan aplikasi agar berjalan otomatis saat komputer menyala:
-     - Buat shortcut dari file `film_televisi_checkin.py`.
-     - Pindahkan shortcut ke folder **Startup**:
-       ```bash
-       shell:startup
+5. **Auto-Run Saat Startup (Menggunakan Task Scheduler - Direkomendasikan)**
+   - Untuk memastikan aplikasi dimulai segera saat komputer menyala, gunakan Task Scheduler:
+     - Buka PowerShell sebagai Administrator (klik kanan pada PowerShell dan pilih "Run as Administrator")
+     - Jalankan script setup:
+       ```powershell
+       cd app-ftv-checkin
+       .\setup_startup.ps1
        ```
+     - Script ini akan membuat task scheduler yang menjalankan aplikasi secara otomatis saat login
+   
+   **Cara Lama (Tidak Direkomendasikan - Lambat ~20 detik):**
+   - Alternatif lama menggunakan folder Startup:
+      - Buat shortcut dari file `film_televisi_checkin.py`.
+      - Pindahkan shortcut ke folder **Startup**:
+        ```bash
+        shell:startup
+        ```
+      - Metode ini memiliki delay sekitar 20 detik setelah desktop siap
+
+---
+
+## Fitur Keamanan
+
+- **Mode Fullscreen**: Aplikasi berjalan dalam mode fullscreen untuk mencegah akses ke aplikasi lain
+- **Always On Top**: Window aplikasi selalu berada di atas untuk memastikan user tidak bisa mengakses aplikasi lain
+- **Timer Aktif**: Menampilkan durasi penggunaan komputer dalam format hh:mm:ss
 
 ---
 
 ## Cara Uninstall
 
-1. **Hapus Folder Aplikasi Lokal**
+4. **Hapus Folder Aplikasi Lokal**
    - Jika ingin menghapus aplikasi, cukup hapus folder proyek dari komputer Anda:
      ```bash
      del /F /Q C:\path\to\app-ftv-checkin
      ```
 
-2. **Hapus Shortcut dari Startup (Jika Ada)**
+2. **Hapus Task Scheduler Entry (Jika Menggunakan Task Scheduler)**
+   - Buka PowerShell sebagai Administrator
+   - Jalankan script untuk menghapus task:
+     ```powershell
+     cd app-ftv-checkin
+     .\remove_startup.ps1
+     ```
+
+3. **Hapus Shortcut dari Startup (Jika Menggunakan Metode Lama)**
    - Buka folder Startup menggunakan perintah:
      ```bash
      shell:startup
