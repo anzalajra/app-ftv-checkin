@@ -135,7 +135,7 @@ class CheckInSystem(QWidget):
         self.clear_layout()  # Clear the current layout first
         self.setWindowTitle("Film dan Televisi - Timer")
         self.setGeometry(400, 200, 400, 200)
-        self.setWindowFlags(Qt.Tool)  # Makes the application run without taskbar icon
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Window | Qt.CustomizeWindowHint)  # Makes the application run without taskbar icon
 
         layout = QVBoxLayout()
 
