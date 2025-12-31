@@ -37,8 +37,8 @@ $Trigger = New-ScheduledTaskTrigger -AtLogon
 $Principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive
 
 # Create settings
-# No execution time limit to allow continuous operation during user session
-$Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+# Explicitly set no execution time limit to allow continuous operation during user session
+$Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Seconds 0)
 
 # Register the scheduled task
 Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Principal $Principal -Settings $Settings -Description "Film dan Televisi User Check-In Application - Starts immediately at logon"
