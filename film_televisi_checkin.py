@@ -131,55 +131,53 @@ class CheckInSystem(QWidget):
         self.init_timer_ui()  # Open the Timer Page
 
     def init_timer_ui(self):
-        """Initialize the timer page (minimizable and draggable)."""
-        self.clear_layout()  # Clear the current layout first
-        self.setWindowTitle("Film dan Televisi - Timer")
-        self.setGeometry(400, 200, 400, 200)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Window | Qt.CustomizeWindowHint)  # Makes the application run without taskbar icon
-
+        """Initialize the Timer UI (minimizable, draggable, and no close button)."""
+        self.clear_layout()
+        self.setWindowTitle("Timer Aktif")
+        self.setGeometry(100, 100, 300, 200)
+        # Disable close button and make it always on top
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Window | Qt.CustomizeWindowHint)
+    
+        # Layout
         layout = QVBoxLayout()
-
-        # Display the user's name
-        name_label = QLabel(f"Selamat datang, {self.user_name}!")
-        name_label.setFont(QFont("Segoe UI Variable", 20))  # Besarkan ukuran font
-        name_label.setStyleSheet("color: #5A5A5A; font-weight: bold;")  # Warna teks bukan hitam pekat
-        name_label.setAlignment(Qt.AlignCenter)
-
-        # Timer display
+    
+        # User name label
+        self.user_label = QLabel(f"Hi, {self.user_name}")
+        self.user_label.setFont(QFont("Segoe UI Variable", 16))
+        self.user_label.setAlignment(Qt.AlignCenter)
+    
+        # Timer label
         self.timer_label = QLabel("00:00:00")
-        self.timer_label.setFont(QFont("Segoe UI Variable", 28))  # Ukuran lebih besar untuk fokus
-        self.timer_label.setStyleSheet("""
-            background-color: #FFFFFF;  /* Latar belakang putih sederhana */
-            border: 2px solid #CCCCCC;
-            border-radius: 10px;
-            padding: 6px;
-            color: #0078D4;  /* Warna utama biru */
-        """)
+        self.timer_label.setFont(QFont("Segoe UI Variable", 24))
         self.timer_label.setAlignment(Qt.AlignCenter)
-
-        # Logout Button
-        self.logout_button = QPushButton("Logout", self)
-        self.logout_button.setFont(QFont("Segoe UI Variable", 14))
+    
+        # Logout button
+        self.logout_button = QPushButton("Logout")
+        self.logout_button.setFont(QFont("Segoe UI Variable", 12))
         self.logout_button.setStyleSheet("""
             QPushButton {
-                background-color: #0078D4;  /* Tombol biru logout */
+                background-color: #0078d4;
                 color: white;
-                font-size: 14px;
-                font-weight: bold;
+                border: none;
                 border-radius: 8px;
-                padding: 6px 16px;
+                padding: 8px 16px;
             }
             QPushButton:hover {
-                background-color: #005A9E;
+                background-color: #005a9e;
             }
         """)
         self.logout_button.clicked.connect(self.logout_handler)
-
-        # Add widgets to the layout
-        layout.addWidget(name_label)
-        layout.addWidget(self.timer_label)
-        layout.addWidget(self.logout_button, alignment=Qt.AlignHCenter)
+    
+        # Add to layout
+        layout.addWidget(self.user_label, alignment=Qt.AlignCenter)
+        layout.addWidget(self.timer_label, alignment=Qt.AlignCenter)
+        layout.addWidget(self.logout_button, alignment=Qt.AlignCenter)
         self.setLayout(layout)
+        self.show()
+    
+        # Initialize drag variables
+        self._is_dragging = False  # To track dragging status
+        self._drag_start_pos = None  # Initial dragging position
 
         # Start the timer
         self.start_time = QTime.currentTime()
@@ -189,6 +187,25 @@ class CheckInSystem(QWidget):
 
         self.show()  # Show timer page
 
+    def mousePressEvent(self, event):
+        """Initialize dragging when the mouse is pressed."""
+        if event.button() == Qt.LeftButton:  # Only left-click is used for dragging
+            self._is_dragging = True
+            self._drag_start_pos = event.globalPos() - self.frameGeometry().topLeft()
+            event.accept()
+    
+    def mouseMoveEvent(self, event):
+        """Handle window moving during drag."""
+        if self._is_dragging and event.buttons() == Qt.LeftButton:
+            self.move(event.globalPos() - self._drag_start_pos)
+            event.accept()
+    
+    def mouseReleaseEvent(self, event):
+        """Stop dragging when the mouse is released."""
+        if event.button() == Qt.LeftButton:
+            self._is_dragging = False
+            event.accept()
+        
     def update_timer(self):
         """Update the timer label."""
         elapsed = self.start_time.secsTo(QTime.currentTime())
