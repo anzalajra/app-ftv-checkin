@@ -3,6 +3,7 @@ import os
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QTimer, QTime, Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout, QInputDialog
 
 
 class CheckInSystem(QWidget):
