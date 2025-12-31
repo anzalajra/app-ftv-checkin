@@ -8,185 +8,145 @@ from PyQt5.QtCore import QTimer, QTime, Qt
 class CheckInSystem(QWidget):
     def __init__(self):
         super().__init__()
-        self.start_time = None
-        self.timer = None
-        self.user_name = None
-        self.init_checkin_ui()
+        self.start_time = None  # Timer start time
+        self.timer = None       # QTimer instance
+        self.user_name = None   # Name of the user who checked in
+        self.init_checkin_ui()  # Set up fullscreen check-in page first
 
     def clear_layout(self):
         """Remove the current layout (if any) to prevent overlap."""
         if self.layout() is not None:
+            # Create a temporary widget to clear the layout
             QWidget().setLayout(self.layout())
 
     def init_checkin_ui(self):
-        """Initialize the fullscreen Check-In UI (now with improved UI/UX)."""
-        self.clear_layout()
+        """Initialize the fullscreen check-in UI."""
+        self.clear_layout()  # Clear the current layout first
         self.setWindowTitle("Film dan Televisi Check-In")
-        self.setGeometry(0, 0, 800, 600)
-        self.setWindowFlags(Qt.FramelessWindowHint)  # Fullscreen without window border
+        self.setGeometry(200, 200, 300, 200)
+        self.setWindowFlags(Qt.FramelessWindowHint)  # Remove window border
+        self.showFullScreen()  # Set Fullscreen for check-in page
 
-        # Main Layout
+        # Main Layout for Check-In
         layout_main = QVBoxLayout()
 
-        # Title
+        # Title Label
         self.label_title = QLabel("Selamat Datang! Silakan Check-In")
-        self.label_title.setFont(QFont("Segoe UI Variable", 20))
+        self.label_title.setFont(QFont("Arial", 18))
         self.label_title.setAlignment(Qt.AlignCenter)
-        self.label_title.setStyleSheet("color: #2b2b2b;")  # Dark-gray text
         layout_main.addWidget(self.label_title)
 
-        # Input Fields
-        self.name_input = QLineEdit()
-        self.name_input.setPlaceholderText("Nama Lengkap")
-        self.name_input.setFont(QFont("Segoe UI Variable", 14))
-        self.name_input.setStyleSheet("""
-            background-color: #ffffff;
-            border: 1px solid #dcdcdc;
-            border-radius: 10px;
-            padding: 8px;
-        """)
+        # Form Input
+        form_layout = QVBoxLayout()
+        self.name_input = QLineEdit(self)
+        self.name_input.setPlaceholderText("Nama")
+        self.name_input.setFont(QFont("Arial", 14))
         self.name_input.setAlignment(Qt.AlignCenter)
 
-        self.nim_input = QLineEdit()
+        self.nim_input = QLineEdit(self)
         self.nim_input.setPlaceholderText("NIM")
-        self.nim_input.setFont(QFont("Segoe UI Variable", 14))
-        self.nim_input.setStyleSheet("""
-            background-color: #ffffff;
-            border: 1px solid #dcdcdc;
-            border-radius: 10px;
-            padding: 8px;
-        """)
+        self.nim_input.setFont(QFont("Arial", 14))
         self.nim_input.setAlignment(Qt.AlignCenter)
 
-        submit_button = QPushButton("Check-In")
-        submit_button.setFont(QFont("Segoe UI Variable", 16))
-        submit_button.setStyleSheet("""
-            QPushButton {
-                background-color: #0078d4;  /* Fluent blue */
-                color: white;
-                border: none;
-                border-radius: 10px;
-                padding: 10px 20px;
-            }
-            QPushButton:hover {
-                background-color: #005a9e;
-            }
-        """)
+        submit_button = QPushButton("Check-In", self)
+        submit_button.setFont(QFont("Arial", 14))
         submit_button.clicked.connect(self.handle_checkin)
 
-        # Add Input to Layout
-        form_layout = QVBoxLayout()
         form_layout.addWidget(self.name_input)
         form_layout.addWidget(self.nim_input)
         form_layout.addWidget(submit_button, alignment=Qt.AlignCenter)
+
         layout_main.addLayout(form_layout)
 
-        # Shutdown button (bottom-right)
+        # Shutdown Button at Bottom Right
+        button_layout = QHBoxLayout()
         shutdown_button = QPushButton("Shutdown")
-        shutdown_button.setFont(QFont("Segoe UI Variable", 10))
-        shutdown_button.setStyleSheet("""
-            QPushButton {
-                background-color: #d83b01;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                padding: 6px 10px;
-            }
-            QPushButton:hover {
-                background-color: #a20000;
-            }
-        """)
+        shutdown_button.setFont(QFont("Arial", 10))
+        shutdown_button.setStyleSheet("background-color: #cc0000; color: white; padding: 5px;")
         shutdown_button.clicked.connect(self.shutdown_handler)
 
-        shutdown_layout = QHBoxLayout()
-        shutdown_layout.addStretch()
-        shutdown_layout.addWidget(shutdown_button)
-        layout_main.addLayout(shutdown_layout)
+        button_layout.addStretch()
+        button_layout.addWidget(shutdown_button)
+        layout_main.addLayout(button_layout)
 
+        # Set the layout
         self.setLayout(layout_main)
-        self.showFullScreen()
 
     def handle_checkin(self):
-        """Handle the user check-in logic."""
+        """Handle the check-in process."""
         name = self.name_input.text().strip()
         nim = self.nim_input.text().strip()
 
         if not name or not nim:
-            self.label_title.setText("Mohon isi semua kolom!")
+            self.label_title.setText("Nama dan NIM harus diisi!")
             self.label_title.setStyleSheet("color: red;")
             return
-        
+
+        # Store the user's name and proceed to timer
         self.user_name = name
-        self.init_timer_ui()
+        self.label_title.setStyleSheet("color: black;")
+        self.close()  # Close fullscreen check-in page
+        self.init_timer_ui()  # Open the Timer Page
 
     def init_timer_ui(self):
-        """Initialize the Timer UI (minimal and modern)."""
-        self.clear_layout()
-        self.setWindowTitle("Timer Aktif")
-        self.setGeometry(100, 100, 300, 200)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)  # Draggable and above other windows
+        """Initialize the timer page (minimizable and draggable)."""
+        self.clear_layout()  # Clear the current layout first
+        self.setWindowTitle("Film dan Televisi - Timer")
+        self.setGeometry(400, 200, 400, 200)
+        self.setWindowFlags(Qt.Tool)  # Makes the application run without taskbar icon
 
-        # Timer UI Layout
         layout = QVBoxLayout()
 
-        # User Name
-        user_label = QLabel(f"Hi, {self.user_name}")
-        user_label.setFont(QFont("Segoe UI Variable", 16))
-        user_label.setAlignment(Qt.AlignCenter)
+        # Display the user's name
+        name_label = QLabel(f"Selamat datang, {self.user_name}!")
+        name_label.setFont(QFont("Arial", 16))
+        name_label.setAlignment(Qt.AlignCenter)
 
-        # Timer Display
+        # Timer display
         self.timer_label = QLabel("00:00:00")
-        self.timer_label.setFont(QFont("Segoe UI Variable", 24))
+        self.timer_label.setFont(QFont("Arial", 24))  # Bigger font for the timer
         self.timer_label.setAlignment(Qt.AlignCenter)
 
         # Logout Button
-        logout_button = QPushButton("Logout")
-        logout_button.setFont(QFont("Segoe UI Variable", 12))
-        logout_button.setStyleSheet("""
-            QPushButton {
-                background-color: #0078d4;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                padding: 8px 16px;
-            }
-            QPushButton:hover {
-                background-color: #005a9e;
-            }
-        """)
-        logout_button.clicked.connect(self.logout_handler)
+        self.logout_button = QPushButton("Logout", self)
+        self.logout_button.setFont(QFont("Arial", 12))
+        self.logout_button.clicked.connect(self.logout_handler)
 
-        # Add to Layout
-        layout.addWidget(user_label, alignment=Qt.AlignCenter)
-        layout.addWidget(self.timer_label, alignment=Qt.AlignCenter)
-        layout.addWidget(logout_button, alignment=Qt.AlignCenter)
+        # Add widgets to the layout
+        layout.addWidget(name_label)
+        layout.addWidget(self.timer_label)
+        layout.addWidget(self.logout_button, alignment=Qt.AlignHCenter)
         self.setLayout(layout)
-        self.start_timer()
 
-    def start_timer(self):
-        """Start the timer."""
-        self.start_time = QTime(0, 0)
+        # Start the timer
+        self.start_time = QTime.currentTime()
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
-        self.timer.start(1000)
+        self.timer.start(1000)  # Update every 1 second
+
+        self.show()  # Show timer page
 
     def update_timer(self):
-        """Update the timer text."""
-        self.start_time = self.start_time.addSecs(1)
-        self.timer_label.setText(self.start_time.toString("HH:mm:ss"))
+        """Update the timer label."""
+        elapsed = self.start_time.secsTo(QTime.currentTime())
+        elapsed_text = QTime(0, 0).addSecs(elapsed).toString("HH:mm:ss")
+        self.timer_label.setText(elapsed_text)
 
     def logout_handler(self):
-        """Handle logout and return to check-in screen."""
-        if self.timer:
-            self.timer.stop()
-        self.init_checkin_ui()
+        """Handle logout button."""
+        self.timer.stop()  # Stop the timer
+        self.close()  # Close the timer page
+        self.start_time = None  # Reset timer
+        self.user_name = None  # Reset user name
+        self.init_checkin_ui()  # Reopen the fullscreen check-in page
 
     def shutdown_handler(self):
-        """Shutdown the computer (Windows only)."""
-        os.system("shutdown /s /t 1")
+        """Shutdown the computer (for Windows 11)."""
+        print("Shutdown initiated.")  # Optional log for testing
+        os.system("shutdown /s /t 1")  # Shutdown computer immediately
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = CheckInSystem()
-    app.exec_()
+    sys.exit(app.exec_())
