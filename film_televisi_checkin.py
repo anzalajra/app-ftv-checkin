@@ -167,6 +167,28 @@ class CheckInSystem(QWidget):
             }
         """)
         self.logout_button.clicked.connect(self.logout_handler)
+
+        # Admin Close
+        self.admin_close_button = QPushButton("Admin Close")
+        self.admin_close_button.setFont(QFont("Arial", 12))  # Atur gaya font
+        self.admin_close_button.setStyleSheet("""
+            QPushButton {
+                background-color: red;  /* Tombol merah untuk admin */
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 8px 16px;
+            }
+            QPushButton:hover {
+                background-color: darkred;
+            }
+        """)
+        self.admin_close_button.clicked.connect(self.admin_close_dialog)  # Buatkan fungsi untuk tombol nanti
+        self.admin_close_button.hide()  # Sembunyikan tombol secara default
+        layout.addWidget(self.admin_close_button, alignment=Qt.AlignCenter)  # Masukkan tombol dalam layout
+
+        # Tambahkan dalam init_timer_ui di koneksi tombol
+        self.admin_close_button.clicked.connect(self.admin_close_dialog)
     
         # Add to layout
         layout.addWidget(self.user_label, alignment=Qt.AlignCenter)
@@ -186,6 +208,27 @@ class CheckInSystem(QWidget):
         self.timer.start(1000)  # Update every 1 second
 
         self.show()  # Show timer page
+        
+
+    def keyPressEvent(self, event):
+    """Detect specific key combinations for Admin functionalities."""
+    # Jika Ctrl + A ditekan, tampilkan Admin Close button
+    if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_A:
+        self.admin_close_button.show()  # Tampilkan tombol
+    # Jika Esc ditekan, sembunyikan Admin Close button
+    elif event.key() == Qt.Key_Escape:
+        self.admin_close_button.hide()  # Sembunyikan tombol
+
+
+    def admin_close_dialog(self):
+    """Display a dialog for Admin PIN verification before closing the app."""
+    pin, ok = QInputDialog.getText(self, "Admin Authentication", "Masukkan PIN Admin:", QLineEdit.Password)
+    if ok and pin == "9999":  # Replace "1234" dengan PIN aman
+        QApplication.quit()  # Menutup aplikasi jika PIN benar
+    elif ok:
+        print("PIN Salah!")  # Feedback jika PIN salah
+
+    
     def closeEvent(self, event):
         """Override the close event to prevent the window from being closed."""
         event.ignore()  # Ignore the close event, so the window won't close
