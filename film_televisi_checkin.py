@@ -12,8 +12,15 @@ class CheckInSystem(QWidget):
         self.user_name = None   # Name of the user who checked in
         self.init_checkin_ui()  # Set up fullscreen check-in page first
 
+    def clear_layout(self):
+        """Remove the current layout (if any) to prevent overlap."""
+        if self.layout() is not None:
+            # Create a temporary widget to clear the layout
+            QWidget().setLayout(self.layout())
+
     def init_checkin_ui(self):
         """Initialize the fullscreen check-in UI."""
+        self.clear_layout()  # Clear the current layout first
         self.setWindowTitle("Film dan Televisi Check-In")
         self.setGeometry(200, 200, 300, 200)
         self.setWindowFlags(Qt.FramelessWindowHint)  # Remove window border
@@ -66,12 +73,12 @@ class CheckInSystem(QWidget):
         # Store the user's name and proceed to timer
         self.user_name = name
         self.label_title.setStyleSheet("color: black;")
-        self.label_title.setText("Check-In berhasil, memulai aplikasi...")
         self.close()  # Close fullscreen check-in page
         self.init_timer_ui()  # Open the Timer Page
 
     def init_timer_ui(self):
         """Initialize the timer page (minimizable and draggable)."""
+        self.clear_layout()  # Clear the current layout first
         self.setWindowTitle("Film dan Televisi - Timer")
         self.setGeometry(400, 200, 400, 200)
         self.setWindowFlags(Qt.Tool)  # Makes the application run without taskbar icon
