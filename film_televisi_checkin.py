@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QTimer, QTime, Qt
@@ -56,6 +57,17 @@ class CheckInSystem(QWidget):
         form_layout.addWidget(submit_button, alignment=Qt.AlignCenter)
 
         layout_main.addLayout(form_layout)
+
+        # Shutdown Button at Bottom Right
+        button_layout = QHBoxLayout()
+        shutdown_button = QPushButton("Shutdown")
+        shutdown_button.setFont(QFont("Arial", 10))
+        shutdown_button.setStyleSheet("background-color: #cc0000; color: white; padding: 5px;")
+        shutdown_button.clicked.connect(self.shutdown_handler)
+
+        button_layout.addStretch()
+        button_layout.addWidget(shutdown_button)
+        layout_main.addLayout(button_layout)
 
         # Set the layout
         self.setLayout(layout_main)
@@ -127,6 +139,11 @@ class CheckInSystem(QWidget):
         self.start_time = None  # Reset timer
         self.user_name = None  # Reset user name
         self.init_checkin_ui()  # Reopen the fullscreen check-in page
+
+    def shutdown_handler(self):
+        """Shutdown the computer (for Windows 11)."""
+        print("Shutdown initiated.")  # Optional log for testing
+        os.system("shutdown /s /t 1")  # Shutdown computer immediately
 
 
 if __name__ == "__main__":
