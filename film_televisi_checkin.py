@@ -65,6 +65,10 @@ class CheckInSystem(QWidget):
         self.setWindowTitle("Film dan Televisi - Timer")
         self.setGeometry(400, 200, 400, 200)
 
+        # Hapus layout lama jika ada
+        if self.layout() is not None:
+            QWidget().setLayout(self.layout())
+
         layout = QVBoxLayout()
 
         self.timer_label = QLabel("Durasi Aktif: 00:00:00")
@@ -83,14 +87,14 @@ class CheckInSystem(QWidget):
         self.start_time = QTime.currentTime()
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
-        self.timer.start(1000)  # Update every 1 second
+        self.timer.start(1000)  # Update setiap 1 detik
 
         self.show()  # Show timer page
 
     def update_timer(self):
         """Update the timer label."""
-        elapsed = QTime(0, 0).secsTo(self.start_time.secsTo(QTime.currentTime()))
-        elapsed_text = QTime(0, 0).addSecs(elapsed).toString("hh:mm:ss")
+        elapsed = self.start_time.secsTo(QTime.currentTime())  # Hitung durasi sejak timer dimulai
+        elapsed_text = QTime(0, 0).addSecs(elapsed).toString("hh:mm:ss")  # Format waktu ke hh:mm:ss
         self.timer_label.setText(f"Durasi Aktif: {elapsed_text}")
 
     def logout_handler(self):
