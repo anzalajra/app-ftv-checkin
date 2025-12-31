@@ -159,8 +159,8 @@ class CheckInSystem(QWidget):
 
         # Logout Button
         self.logout_button = QPushButton("Logout", self)
-        logout_button.setFont(QFont("Segoe UI Variable", 14))
-        logout_button.setStyleSheet("""
+        self.logout_button.setFont(QFont("Segoe UI Variable", 14))
+        self.logout_button.setStyleSheet("""
             QPushButton {
                 background-color: #0078D4;  /* Tombol biru logout */
                 color: white;
