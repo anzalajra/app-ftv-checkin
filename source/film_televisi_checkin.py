@@ -150,7 +150,6 @@ class KeyboardBlocker:
             self._running = True
             self._hook_thread = threading.Thread(target=self._hook_thread_func, daemon=True)
             self._hook_thread.start()
-            time.sleep(0.2)
     
     def enable_blocking(self):
         """Enable keyboard blocking."""
@@ -181,13 +180,130 @@ class CheckInSystem(QWidget):
         self.start_time = None  # Timer start time
         self.timer = None       # QTimer instance
         self.user_name = None   # Name of the user who checked in
-        self.init_checkin_ui()  # Set up fullscreen check-in page first
+        self.show_loading_screen()  # Show loading screen first
 
     def clear_layout(self):
         """Remove the current layout (if any) to prevent overlap."""
         if self.layout() is not None:
             # Create a temporary widget to clear the layout
             QWidget().setLayout(self.layout())
+
+    def show_loading_screen(self):
+        """Show loading screen before check-in UI."""
+        # Set window flags dan geometry DULU
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        screen = QApplication.primaryScreen().geometry()
+        self.setGeometry(screen)
+        
+        # Set background langsung
+        self.setStyleSheet("""
+            QWidget {
+                background:  qlineargradient(
+                    x1: 0, y1: 0, x2: 1, y2: 1,
+                    stop: 0 #4285F4,
+                    stop: 0.5 #5E97F6,
+                    stop: 1 #7BAAF7
+                );
+            }
+        """)
+        
+        # SHOW DULU sebelum build layout
+        self.show()
+        self.showFullScreen()
+        QApplication.processEvents()  # Force render
+        
+        # Baru build layout
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Background container
+        loading_bg = QWidget()
+        loading_bg.setObjectName("loadingBg")
+        loading_bg.setStyleSheet("""
+            QWidget#loadingBg {
+                background:  transparent;
+            }
+        """)
+        
+        loading_layout = QVBoxLayout(loading_bg)
+        loading_layout.setAlignment(Qt.AlignCenter)
+        
+        # Icon
+        icon_label = QLabel("🖥️")
+        icon_label.setAlignment(Qt.AlignCenter)
+        icon_label.setStyleSheet("""
+            QLabel {
+                font-size:  64px;
+                background: transparent;
+            }
+        """)
+        loading_layout.addWidget(icon_label)
+        
+        # App name
+        app_name = QLabel("Film & Televisi")
+        app_name.setAlignment(Qt.AlignCenter)
+        app_name.setStyleSheet("""
+            QLabel {
+                color: white;
+                font-size: 32px;
+                font-weight: 600;
+                font-family: 'Segoe UI', sans-serif;
+                background: transparent;
+                margin-top: 16px;
+            }
+        """)
+        loading_layout.addWidget(app_name)
+        
+        # Subtitle
+        subtitle = QLabel("Check-In System")
+        subtitle.setAlignment(Qt.AlignCenter)
+        subtitle.setStyleSheet("""
+            QLabel {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 16px;
+                font-family: 'Segoe UI', sans-serif;
+                background: transparent;
+                margin-top: 8px;
+            }
+        """)
+        loading_layout.addWidget(subtitle)
+        
+        # Loading indicator
+        self.loading_label = QLabel("Loading...")
+        self.loading_label.setAlignment(Qt.AlignCenter)
+        self.loading_label.setStyleSheet("""
+            QLabel {
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 14px;
+                font-family: 'Segoe UI', sans-serif;
+                background: transparent;
+                margin-top: 32px;
+            }
+        """)
+        loading_layout.addWidget(self.loading_label)
+        
+        layout.addWidget(loading_bg)
+        self.setLayout(layout)
+        
+        # Animate loading text
+        self._loading_dots = 0
+        self._loading_timer = QTimer()
+        self._loading_timer.timeout.connect(self._animate_loading)
+        self._loading_timer.start(400)
+        
+        # Transition ke check-in UI setelah 2 detik
+        QTimer.singleShot(8000, self._finish_loading)
+    
+    def _animate_loading(self):
+        """Animate loading dots."""
+        dots = "." * (self._loading_dots % 4)
+        self.loading_label.setText(f"Loading{dots}")
+        self._loading_dots += 1
+    
+    def _finish_loading(self):
+        """Finish loading and show check-in UI."""
+        self._loading_timer.stop()
+        self.init_checkin_ui()
 
     def disable_taskbar(self):
         """Hide and disable the Windows taskbar."""
@@ -223,16 +339,17 @@ class CheckInSystem(QWidget):
         except Exception as e:
             print(f"Error showing taskbar: {e}")
 
+# CARI method init_checkin_ui() dan GANTI SELURUHNYA dengan: 
     def init_checkin_ui(self):
-        """Initialize the fullscreen check-in UI."""
-        self.clear_layout()  # Clear the current layout first
+        """Initialize the fullscreen check-in UI with modern Google-style design."""
+        self.clear_layout()
         self.setWindowTitle("Film dan Televisi Check-In")
 
-        # PENTING: Hide dulu, set flags, baru show
+        # Hide dulu, set flags, baru show
         self.hide()
         
         # Set window flags untuk fullscreen tanpa frame
-        self.setWindowFlags(Qt. Window | Qt. FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         
         # Set geometry ke screen size
         screen = QApplication.primaryScreen().geometry()
@@ -247,121 +364,265 @@ class CheckInSystem(QWidget):
         self.raise_()
         QApplication.processEvents()
 
-        # Main Layout for Check-In
+        # Set background gradient (Google Blue style)
+        # Reset stylesheet dari parent widget
+        self.setStyleSheet("")
+        
+        # Main Layout
         layout_main = QVBoxLayout()
-        layout_main.setContentsMargins(50, 50, 50, 50)  # Tambahkan margin di setiap sisi
-        layout_main.setSpacing(20)  # Spasi antar elemen
+        layout_main.setContentsMargins(0, 0, 0, 0)
+        layout_main.setSpacing(0)
 
-        # Title Label
-        self.label_title = QLabel("Selamat Datang! Silakan Check-In")
-        self.label_title.setFont(QFont("Segoe UI Variable", 24))
-        self.label_title.setStyleSheet("color: #000000; font-weight: bold;")  # Warna teks dan ketebalan
-        self.label_title.setAlignment(Qt.AlignCenter)
-        layout_main.addWidget(self.label_title)
-
-        # Form Input
-        form_layout = QVBoxLayout()
-        self.name_input = QLineEdit(self)
-        self.name_input.setPlaceholderText("Nama")
-        self.name_input.setStyleSheet("""
-            background-color: #FFFFFF;  /* Warna putih */
-            font-size: 16px;
-            padding: 8px;
-            border: 2px solid #CCCCCC;
-            border-radius: 10px;  /* Rounded Corner */
+        # Background container dengan gradient
+        self.bg_container = QWidget()
+        self.bg_container.setObjectName("bgContainer")
+        self.bg_container.setStyleSheet("""
+            QWidget#bgContainer {
+                background: qlineargradient(
+                    x1: 0, y1: 0, x2: 1, y2: 1,
+                    stop:  0 #4285F4,
+                    stop: 0.5 #5E97F6,
+                    stop: 1 #7BAAF7
+                );
+            }
         """)
-        self.name_input.setFont(QFont("Segoe UI Variable", 14))
-        self.name_input.setAlignment(Qt.AlignCenter)
+        
+        bg_layout = QVBoxLayout(self.bg_container)
+        bg_layout.setContentsMargins(0, 0, 0, 0)
+        bg_layout.setSpacing(0)
 
-        self.nim_input = QLineEdit(self)
+        # Spacer atas
+        bg_layout.addStretch(2)
+
+        # Container card (white card di tengah)
+        card_container = QHBoxLayout()
+        card_container.addStretch(1)
+        
+        # Card widget
+        card = QWidget()
+        card.setFixedSize(450, 500)
+        card.setStyleSheet("""
+            QWidget {
+                background-color: #FFFFFF;
+                border-radius: 24px;
+            }
+        """)
+        
+        # Card layout
+        card_layout = QVBoxLayout(card)
+        card_layout.setContentsMargins(48, 48, 48, 48)
+        card_layout.setSpacing(24)
+
+        # Icon/Logo placeholder (circle with icon)
+        icon_container = QHBoxLayout()
+        icon_label = QLabel("🖥️")
+        icon_label.setFixedSize(80, 80)
+        icon_label.setAlignment(Qt.AlignCenter)
+        icon_label.setStyleSheet("""
+            QLabel {
+                background-color: #E8F0FE;
+                border-radius: 40px;
+                font-size: 36px;
+            }
+        """)
+        icon_container.addStretch()
+        icon_container.addWidget(icon_label)
+        icon_container.addStretch()
+        card_layout.addLayout(icon_container)
+
+        # Title
+        self.label_title = QLabel("Selamat Datang")
+        self.label_title.setAlignment(Qt.AlignCenter)
+        self.label_title.setStyleSheet("""
+            QLabel {
+                color: #202124;
+                font-size: 28px;
+                font-weight: 400;
+                font-family: 'Segoe UI', 'Google Sans', sans-serif;
+                background:  transparent;
+            }
+        """)
+        card_layout.addWidget(self.label_title)
+
+        # Subtitle
+        subtitle = QLabel("Silakan masukkan data Anda untuk check-in")
+        subtitle.setAlignment(Qt.AlignCenter)
+        subtitle.setStyleSheet("""
+            QLabel {
+                color: #5F6368;
+                font-size: 14px;
+                font-family: 'Segoe UI', 'Google Sans', sans-serif;
+                background: transparent;
+            }
+        """)
+        card_layout.addWidget(subtitle)
+
+        card_layout.addSpacing(16)
+
+        # Input Nama
+        self.name_input = QLineEdit()
+        self.name_input.setPlaceholderText("Nama Lengkap")
+        self.name_input.setStyleSheet("""
+            QLineEdit {
+                background-color: #FFFFFF;
+                border:  2px solid #DADCE0;
+                border-radius: 8px;
+                padding: 16px 16px;
+                font-size: 16px;
+                font-family: 'Segoe UI', sans-serif;
+                color: #202124;
+            }
+            QLineEdit:focus {
+                border:  2px solid #4285F4;
+                background-color: #FFFFFF;
+            }
+            QLineEdit::placeholder {
+                color:  #9AA0A6;
+            }
+        """)
+        self.name_input.setFixedHeight(56)
+        card_layout.addWidget(self.name_input)
+
+        # Input NIM
+        self.nim_input = QLineEdit()
         self.nim_input.setPlaceholderText("NIM")
         self.nim_input.setStyleSheet("""
-            background-color: #FFFFFF;
-            font-size: 16px;
-            padding: 8px;
-            border: 2px solid #CCCCCC;
-            border-radius: 10px;
+            QLineEdit {
+                background-color: #FFFFFF;
+                border:  2px solid #DADCE0;
+                border-radius: 8px;
+                padding: 16px 16px;
+                font-size: 16px;
+                font-family: 'Segoe UI', sans-serif;
+                color: #202124;
+            }
+            QLineEdit: focus {
+                border: 2px solid #4285F4;
+                background-color: #FFFFFF;
+            }
+            QLineEdit:: placeholder {
+                color: #9AA0A6;
+            }
         """)
-        self.nim_input.setFont(QFont("Segoe UI Variable", 14))
-        self.nim_input.setAlignment(Qt.AlignCenter)
+        self.nim_input.setFixedHeight(56)
+        card_layout.addWidget(self.nim_input)
 
-        submit_button = QPushButton("Check-In", self)
+        card_layout.addSpacing(8)
+
+        # Check-in Button
+        submit_button = QPushButton("Check-In")
+        submit_button.setCursor(Qt.PointingHandCursor)
         submit_button.setStyleSheet("""
             QPushButton {
-                background-color: #0078D4;  /* Biru ala Windows */
+                background-color: #4285F4;
                 color: white;
+                border:  none;
+                border-radius: 8px;
+                padding: 16px 32px;
                 font-size: 16px;
-                font-weight: bold;
-                border-radius: 12px;
-                padding: 8px 16px;
+                font-weight: 600;
+                font-family:  'Segoe UI', sans-serif;
             }
             QPushButton:hover {
-                background-color: #005A9E;  /* Biru lebih gelap saat hover */
+                background-color:  #3367D6;
+            }
+            QPushButton:pressed {
+                background-color: #2851A3;
             }
         """)
-        submit_button.setFont(QFont("Arial", 14))
+        submit_button.setFixedHeight(56)
         submit_button.clicked.connect(self.handle_checkin)
-        
-        # Enable Enter key to submit - pindah focus atau submit
+        card_layout.addWidget(submit_button)
+
+        # Enter key handlers
         self.name_input.returnPressed.connect(self._on_name_enter)
         self.nim_input.returnPressed.connect(self._on_nim_enter)
 
-        form_layout.addWidget(self.name_input)
-        form_layout.addWidget(self.nim_input)
-        form_layout.addWidget(submit_button, alignment=Qt.AlignCenter)
-
-        layout_main.addLayout(form_layout)
-
-        # Shutdown Button at Bottom Right
-        button_layout = QHBoxLayout()
-        shutdown_button = QPushButton("Shutdown")
-        shutdown_button.setFont(QFont("Arial", 10))
-        shutdown_button.setStyleSheet("""
-            QPushButton {
-                background-color: #FF0000;  /* Tombol shutdown warna merah */
-                color: white;
-                font-size: 14px;
-                font-weight: bold;
-                border-radius: 8px;
-                padding: 6px 12px;
-            }
-            QPushButton:hover {
-                background-color: #B20000;  /* Warna merah lebih gelap saat hover */
+        # Error message label (hidden by default)
+        self.error_label = QLabel("")
+        self.error_label.setAlignment(Qt.AlignCenter)
+        self.error_label.setStyleSheet("""
+            QLabel {
+                color: #D93025;
+                font-size: 13px;
+                font-family: 'Segoe UI', sans-serif;
+                background: transparent;
             }
         """)
-        shutdown_button.clicked.connect(self.shutdown_handler)
+        self.error_label.hide()
+        card_layout.addWidget(self.error_label)
 
-        button_layout.addStretch()
-        button_layout.addWidget(shutdown_button)
-        layout_main.addLayout(button_layout)
+        card_layout.addStretch()
 
-        # Admin Close Button (hidden by default, show with Ctrl+A)
-        self.admin_close_button = QPushButton("Admin Close")
-        self.admin_close_button.setFont(QFont("Arial", 12))
+        card_container.addWidget(card)
+        card_container.addStretch(1)
+        bg_layout.addLayout(card_container)
+
+        # Spacer bawah
+        bg_layout.addStretch(2)
+
+        # Bottom bar untuk Shutdown dan Admin
+        bottom_bar = QHBoxLayout()
+        bottom_bar.setContentsMargins(32, 16, 32, 32)
+
+        # Admin Close Button (hidden by default)
+        self.admin_close_button = QPushButton("Admin")
+        self.admin_close_button.setCursor(Qt.PointingHandCursor)
         self.admin_close_button.setStyleSheet("""
             QPushButton {
-                background-color: red;
-                color:  white;
-                border: none;
+                background-color: rgba(255, 255, 255, 0.2);
+                color: white;
+                border:  1px solid rgba(255, 255, 255, 0.3);
                 border-radius: 8px;
-                padding: 8px 16px;
+                padding:  12px 24px;
+                font-size: 14px;
+                font-family: 'Segoe UI', sans-serif;
             }
             QPushButton:hover {
-                background-color:  darkred;
+                background-color: rgba(255, 255, 255, 0.3);
             }
         """)
         self.admin_close_button.clicked.connect(self.admin_close_dialog)
-        self.admin_close_button.hide()  # Hidden by default
-        layout_main.addWidget(self.admin_close_button, alignment=Qt.AlignCenter)
+        self.admin_close_button.hide()
+        bottom_bar.addWidget(self.admin_close_button)
+
+        bottom_bar.addStretch()
+
+         # Shutdown button
+        shutdown_button = QPushButton("Shutdown")
+        shutdown_button.setCursor(Qt.PointingHandCursor)
+        shutdown_button.setStyleSheet("""
+            QPushButton {
+                background-color:  #EA4335;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 12px 24px;
+                font-size: 14px;
+                font-family: 'Segoe UI', sans-serif;
+            }
+            QPushButton:hover {
+                background-color:  #D33828;
+            }
+            QPushButton:pressed {
+                background-color: #B8291E;
+            }
+        """)
+        shutdown_button.clicked.connect(self.shutdown_handler)
+        bottom_bar.addWidget(shutdown_button)
+
+        bg_layout.addLayout(bottom_bar)
+
+        # Tambahkan bg_container ke layout_main
+        layout_main.addWidget(self.bg_container)
 
         # Set the layout
         self.setLayout(layout_main)
-        self.show()  # Pastikan ini dipanggil
-        # Disable keyboard blocking for timer page (user can use computer)
+
+        # Enable keyboard blocking dan hide taskbar
         keyboard_blocker.enable_blocking()
-        
-        # Re-enable taskbar when timer is active
         self.disable_taskbar()
+
 
     def handle_checkin(self):
         """Handle the check-in process."""
@@ -369,15 +630,35 @@ class CheckInSystem(QWidget):
         nim = self.nim_input.text().strip()
 
         if not name or not nim:
-            self.label_title.setText("Nama dan NIM harus diisi!")
-            self.label_title.setStyleSheet("color: red;")
+            self.error_label.setText("⚠️ Mohon isi Nama dan NIM Anda")
+            self.error_label.show()
+            
+            error_style = """
+                QLineEdit {
+                    background-color: #FFFFFF;
+                    border: 2px solid #D93025;
+                    border-radius: 8px;
+                    padding: 16px 16px;
+                    font-size: 16px;
+                    font-family: 'Segoe UI', sans-serif;
+                    color: #202124;
+                }
+                QLineEdit: focus {
+                    border:  2px solid #D93025;
+                }
+            """
+            if not name:
+                self.name_input.setStyleSheet(error_style)
+            if not nim: 
+                self.nim_input.setStyleSheet(error_style)
             return
 
-        # Store the user's name and proceed to timer
+        # Store data dan langsung pindah ke timer
         self.user_name = name
-        self.label_title.setStyleSheet("color: black;")
-        self.close()  # Close fullscreen check-in page
-        self.init_timer_ui()  # Open the Timer Page
+        self.user_nim = nim
+        
+        # Langsung init timer tanpa delay
+        self.init_timer_ui()
 
     def _on_name_enter(self):
         """Handle Enter key on name input - move focus to NIM input."""
@@ -386,44 +667,49 @@ class CheckInSystem(QWidget):
     def _on_nim_enter(self):
         """Handle Enter key on NIM input - trigger check-in."""
         # Gunakan QTimer untuk delay sedikit agar tidak konflik
-        QTimer.singleShot(100, self.handle_checkin)
+        QTimer.singleShot(50, self.handle_checkin)
 
     def init_timer_ui(self):
         """Initialize the Timer UI (minimizable, draggable, and resizable)."""
+        # Clear layout tanpa hide/show yang tidak perlu
         self.clear_layout()
+        
+        # Reset stylesheet
+        self.setStyleSheet("")
+        
+        # Set window properties
         self.setWindowTitle("Timer Aktif")
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool)
         self.setGeometry(100, 100, 300, 200)
-        
-        # Frameless tapi bisa resize
-        self.setWindowFlags(Qt. FramelessWindowHint | Qt.Tool)
-        
-        # Set minimum size
         self.setMinimumSize(200, 150)
-        
-        # Enable mouse tracking untuk resize
         self.setMouseTracking(True)
         
-        # Resize margin (area di pinggir untuk resize)
+        # Resize variables
         self._resize_margin = 10
         self._resizing = False
         self._resize_direction = None
+        self._is_dragging = False
+        self._drag_start_pos = None
     
         # Layout
         layout = QVBoxLayout()
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(8)
     
         # User name label
         self.user_label = QLabel(f"Hi, {self.user_name}")
-        self.user_label.setFont(QFont("Segoe UI Variable", 16))
+        self.user_label.setFont(QFont("Segoe UI", 16))
         self.user_label.setAlignment(Qt.AlignCenter)
     
         # Timer label
         self.timer_label = QLabel("00:00:00")
-        self.timer_label.setFont(QFont("Segoe UI Variable", 24))
+        self.timer_label.setFont(QFont("Segoe UI", 24))
         self.timer_label.setAlignment(Qt.AlignCenter)
     
         # Logout button
         self.logout_button = QPushButton("Logout")
-        self.logout_button.setFont(QFont("Segoe UI Variable", 12))
+        self.logout_button.setFont(QFont("Segoe UI", 12))
+        self.logout_button.setCursor(Qt.PointingHandCursor)
         self.logout_button.setStyleSheet("""
             QPushButton {
                 background-color: #0078d4;
@@ -433,53 +719,49 @@ class CheckInSystem(QWidget):
                 padding: 8px 16px;
             }
             QPushButton:hover {
-                background-color: #005a9e;
+                background-color:  #005a9e;
             }
         """)
         self.logout_button.clicked.connect(self.logout_handler)
 
-        # Admin Close
+        # Admin Close button
         self.admin_close_button = QPushButton("Admin Close")
-        self.admin_close_button.setFont(QFont("Arial", 12))  # Atur gaya font
+        self.admin_close_button.setFont(QFont("Segoe UI", 12))
+        self.admin_close_button.setCursor(Qt.PointingHandCursor)
         self.admin_close_button.setStyleSheet("""
             QPushButton {
-                background-color: red;  /* Tombol merah untuk admin */
+                background-color: #EA4335;
                 color: white;
                 border: none;
                 border-radius: 8px;
                 padding: 8px 16px;
             }
-            QPushButton:hover {
-                background-color: darkred;
+            QPushButton: hover {
+                background-color: #D33828;
             }
         """)
-        self.admin_close_button.clicked.connect(self.admin_close_dialog)  # Buatkan fungsi untuk tombol nanti
-        self.admin_close_button.hide()  # Sembunyikan tombol secara default
-        layout.addWidget(self.admin_close_button, alignment=Qt.AlignCenter)  # Masukkan tombol dalam layout
-
-        # Tambahkan dalam init_timer_ui di koneksi tombol
         self.admin_close_button.clicked.connect(self.admin_close_dialog)
+        self.admin_close_button.hide()
     
         # Add to layout
+        layout.addWidget(self.admin_close_button, alignment=Qt.AlignCenter)
         layout.addWidget(self.user_label, alignment=Qt.AlignCenter)
         layout.addWidget(self.timer_label, alignment=Qt.AlignCenter)
         layout.addWidget(self.logout_button, alignment=Qt.AlignCenter)
-    
-        # Initialize drag variables
-        self._is_dragging = False  # To track dragging status
-        self._drag_start_pos = None  # Initial dragging position
 
-        # Start the timer
+        # Set layout dan show
+        self.setLayout(layout)
+        self.show()
+        
+        # Start timer
         self.start_time = QTime.currentTime()
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
-        self.timer.start(1000)  # Update every 1 second
+        self.timer.start(1000)
         
-        self.setLayout(layout)
-        self.show()  # Show timer page
-        
-        keyboard_blocker.disable_blocking() # Enable keyboard blocking during fullscreen check-in
-        self.enable_taskbar() # Disable taskbar during check-in
+        # Enable taskbar dan disable keyboard blocking
+        keyboard_blocker.disable_blocking()
+        self.enable_taskbar()
 
     def keyPressEvent(self, event):
         """Detect specific key combinations for Admin functionalities."""
@@ -537,17 +819,17 @@ class CheckInSystem(QWidget):
             else:
                 # Dragging
                 self._is_dragging = True
-                self._drag_start_pos = event.globalPos() - self. frameGeometry().topLeft()
+                self._drag_start_pos = event.globalPos() - self.frameGeometry().topLeft()
             
             event.accept()
     
     def mouseMoveEvent(self, event):
         """Handle window moving or resizing during drag."""
         if self._resizing and event.buttons() == Qt.LeftButton:
-            self._do_resize(event. globalPos())
+            self._do_resize(event.globalPos())
             event.accept()
         elif self._is_dragging and event.buttons() == Qt.LeftButton:
-            self. move(event.globalPos() - self._drag_start_pos)
+            self.move(event.globalPos() - self._drag_start_pos)
             event.accept()
         else:
             # Update cursor berdasarkan posisi
@@ -634,7 +916,7 @@ class CheckInSystem(QWidget):
         elif direction in ('top', 'bottom'):
             self.setCursor(Qt.SizeVerCursor)
         elif direction in ('top-left', 'bottom-right'):
-            self.setCursor(Qt. SizeFDiagCursor)
+            self.setCursor(Qt.SizeFDiagCursor)
         elif direction in ('top-right', 'bottom-left'):
             self.setCursor(Qt.SizeBDiagCursor)
         else:
@@ -654,11 +936,11 @@ class CheckInSystem(QWidget):
         new_geo = self.geometry()
         
         if 'right' in self._resize_direction:
-            new_width = max(min_width, geo. width() + diff.x())
+            new_width = max(min_width, geo.width() + diff.x())
             new_geo.setWidth(new_width)
         if 'bottom' in self._resize_direction:
             new_height = max(min_height, geo.height() + diff.y())
-            new_geo. setHeight(new_height)
+            new_geo.setHeight(new_height)
         if 'left' in self._resize_direction:
             new_width = max(min_width, geo.width() - diff.x())
             if new_width > min_width:
@@ -677,15 +959,16 @@ class CheckInSystem(QWidget):
 
 
 if __name__ == "__main__":
-    # Install keyboard hook
-    keyboard_blocker.install_hook()
-    
+    # Buat app dan window DULU (tanpa install hook)
     app = QApplication(sys.argv)
     window = CheckInSystem()
     
+    # Install keyboard hook SETELAH window muncul (di background)
+    QTimer.singleShot(100, keyboard_blocker.install_hook)
+    
     result = app.exec_()
     
-    # Cleanup:  uninstall hook and restore taskbar
+    # Cleanup
     keyboard_blocker.uninstall_hook()
     window.enable_taskbar()
     
